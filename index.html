@@ -458,7 +458,9 @@ async function loadFromSheet(){
     const now=new Date(); const hhmm=now.toLocaleString('ko-KR',{hour:'2-digit',minute:'2-digit',month:'numeric',day:'numeric'});
     setStatus('live',`시트 실시간 · ${all.length}건 · ${hhmm} 불러옴`);
     render();
-  }catch(e){ setStatus('err', (''+e.message).slice(0,80)+' (내장 스냅샷 유지)'); }
+  }catch(e){ let m=(''+e.message);
+    if(/fetch|load failed|network|cors/i.test(m)) m='시트에 연결 못함 (공유 설정·네트워크 확인)';
+    setStatus('err', m.slice(0,70)+' · 내장 스냅샷 사용'); }
   finally{ btn.disabled=false; btn.textContent='🔄 시트에서 불러오기'; }
 }
 function setStatus(kind,msg){ const d=document.getElementById('stDot'),t=document.getElementById('stText');
@@ -479,6 +481,8 @@ document.getElementById('sheetUrl').addEventListener('change',e=>{ document.getE
 
 /* 초기 */
 refreshLists(); render();
+// 페이지 열 때 시트에서 자동으로 최신 데이터 불러오기 (실패하면 내장 스냅샷 유지)
+loadFromSheet();
 </script>
 </body>
 </html>
